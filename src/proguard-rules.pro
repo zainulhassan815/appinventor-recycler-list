@@ -14,6 +14,8 @@
 -flattenpackagehierarchy
 -dontpreverify
 
+-include android-common.pro
+
 # Androidx Core
 # Never inline methods, but allow shrinking and obfuscation.
 -keepclassmembernames,allowobfuscation,allowshrinking class androidx.core.view.ViewCompat$Api* {
@@ -26,6 +28,8 @@
   <methods>;
 }
 
+-dontwarn androidx.core.**
+
 # Recycler View
 -keep public class * extends androidx.recyclerview.widget.RecyclerView$LayoutManager {
     public <init>(android.content.Context, android.util.AttributeSet, int, int);
@@ -36,3 +40,7 @@
     public void suppressLayout(boolean);
     public boolean isLayoutSuppressed();
 }
+
+-dontwarn androidx.recyclerview.widget.GridLayoutManager
+-dontwarn androidx.recyclerview.widget.RecyclerView$LayoutManager
+-dontwarn androidx.recyclerview.widget.StaggeredGridLayoutManager
