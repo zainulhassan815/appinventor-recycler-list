@@ -1,0 +1,40 @@
+# For a detailed info on this file and supported fields, check out the below link:
+# https://github.com/ShreyashSaitwal/rush-cli/wiki/Metadata-File
+
+---
+name: RecyclerList
+description: Extension component for RecyclerList. Created using Rush.
+
+version:
+  number: auto
+  name: '1.0.0'
+
+authors:
+  - Zain Ul Hassan
+
+build:
+  release:
+    # Optimizes the extension on every release build.
+    optimize: true
+
+  kotlin:
+    enable: true
+
+  # If enabled, you will be able to use Java 8 language features in your extension.
+  desugar:
+    enable: false
+    desugar_deps: false
+
+assets:
+  # Extension icon. This can be a URL or a local image in 'assets' folder.
+  icon: icon.png
+  # Extension assets.
+  # other:
+  #   - my_awesome_asset.anything
+
+# Extension dependencies (JAR).
+# deps:
+#   - my_awesome_library.jar
+deps:
+  - recyclerview-1.1.0.jar
+  - core-1.3.2.jar
