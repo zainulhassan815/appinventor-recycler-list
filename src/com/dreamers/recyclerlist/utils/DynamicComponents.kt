@@ -14,7 +14,7 @@ import java.lang.reflect.Method
 class DynamicComponents {
 
     companion object {
-        const val LOG_TAG = "DyamicComponents"
+        const val LOG_TAG = "DynamicComponents"
     }
 
     private val androidViews: MutableMap<View, AndroidViewComponent> = mutableMapOf()

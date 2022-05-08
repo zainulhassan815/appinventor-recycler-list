@@ -3,7 +3,10 @@
 
 ---
 name: RecyclerList
-description: Extension component for RecyclerList. Created using Rush.
+description: An extension for rendering larger data sets efficiently using <a href="https://developer.android.com/guide/topics/ui/layout/recyclerview">RecyclerView</a> for AppInventor & Distros.
+homepage: https://github.com/zainulhassan815/appinventor-recycler-list
+license: https://github.com/zainulhassan815/appinventor-recycler-list/blob/main/LICENSE
+min_sdk: 21
 
 version:
   number: auto
@@ -32,9 +35,6 @@ assets:
   # other:
   #   - my_awesome_asset.anything
 
-# Extension dependencies (JAR).
-# deps:
-#   - my_awesome_library.jar
 deps:
   - recyclerview-1.1.0.jar
   - core-1.3.2.jar

@@ -1,14 +1,15 @@
 package com.dreamers.recyclerlist
 
 import android.content.Context
-import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
 import com.dreamers.recyclerlist.utils.DynamicComponents
+import com.dreamers.recyclerlist.utils.findViewByTag
 import com.dreamers.recyclerlist.utils.getLayoutManager
+import com.dreamers.recyclerlist.utils.getSnapHelper
 import com.google.appinventor.components.annotations.SimpleEvent
 import com.google.appinventor.components.annotations.SimpleFunction
 import com.google.appinventor.components.annotations.SimpleProperty
@@ -30,8 +31,6 @@ class RecyclerList(private val container: ComponentContainer) : AndroidNonvisibl
         recyclerView?.adapter?.notifyDataSetChanged()
     }
 
-    private var rootView: ViewHolder? = null
-
     private fun createAdapter(
         container: ComponentContainer,
         getCount: () -> Int
@@ -39,13 +38,11 @@ class RecyclerList(private val container: ComponentContainer) : AndroidNonvisibl
         return object : RecyclerView.Adapter<ViewHolder>() {
             override fun onCreateViewHolder(viewGroup: ViewGroup, type: Int): ViewHolder {
                 val viewHolder = ViewHolder.create(container)
-                rootView = viewHolder
                 OnCreateView(viewHolder.component)
                 return viewHolder
             }
 
             override fun onBindViewHolder(viewHolder: ViewHolder, position: Int) {
-                rootView = viewHolder
                 OnBindView(viewHolder.component, position.inc())
             }
 
@@ -59,6 +56,7 @@ class RecyclerList(private val container: ComponentContainer) : AndroidNonvisibl
     fun Initialize(
         `in`: AndroidViewComponent,
         layoutManager: String,
+        snapHelper: String,
         orientation: Int,
         reverse: Boolean,
         spanCount: Int,
@@ -71,6 +69,7 @@ class RecyclerList(private val container: ComponentContainer) : AndroidNonvisibl
                 spanCount
             )
             adapter = createAdapter(container) { count }
+            ListSnapHelper.valueOf(snapHelper).getSnapHelper()?.attachToRecyclerView(this)
         }
 
         (`in`.view as ViewGroup).addView(
@@ -85,7 +84,7 @@ class RecyclerList(private val container: ComponentContainer) : AndroidNonvisibl
     @SimpleFunction(
         description = "Create a new component."
     )
-    fun CreateComponent(`in`: AndroidViewComponent, name: String, tag: String, properties: Any) {
+    fun CreateComponent(`in`: AndroidViewComponent, name: Any, tag: String, properties: Any) {
         dynamicComponents.createComponent(`in`, name, tag, properties)
     }
 
@@ -118,9 +117,17 @@ class RecyclerList(private val container: ComponentContainer) : AndroidNonvisibl
     @SimpleFunction(
         description = "Get component using tag. Make sure to set RootParent before using."
     )
-    fun GetComponent(tag: String): AndroidViewComponent? {
-        val view = rootView?.itemView?.findViewWithTag<View>(tag) ?: return null
+    fun GetComponent(root: AndroidViewComponent, tag: String): AndroidViewComponent? {
+        val view = root.findViewByTag(tag)
         return dynamicComponents.getAndroidView(view)
+    }
+
+    @SimpleFunction(
+        description = "Get root view using component."
+    )
+    fun GetRootView(view: AndroidViewComponent): AndroidViewComponent? {
+        val viewHolder = recyclerView?.findContainingViewHolder(view.view)
+        return if (viewHolder is ViewHolder) viewHolder.component else null
     }
 
     @SimpleFunction(
@@ -131,11 +138,17 @@ class RecyclerList(private val container: ComponentContainer) : AndroidNonvisibl
     }
 
     @SimpleFunction(
-        description = "Set current root view."
+        description = "Scroll to position."
     )
-    fun SetRootView(position: Int) {
-        val viewHolder = recyclerView?.findViewHolderForAdapterPosition(position.dec())
-        if (viewHolder is ViewHolder && rootView != viewHolder) rootView = viewHolder
+    fun ScrollToPosition(position: Int) {
+        recyclerView?.scrollToPosition(position.dec())
+    }
+
+    @SimpleFunction(
+        description = "Smooth scroll to position."
+    )
+    fun SmoothScrollToPosition(position: Int) {
+        recyclerView?.smoothScrollToPosition(position.dec())
     }
 
     @SimpleEvent(
@@ -152,12 +165,16 @@ class RecyclerList(private val container: ComponentContainer) : AndroidNonvisibl
         EventDispatcher.dispatchEvent(this, "OnBindView", root, position)
     }
 
-    @SimpleProperty
+    @SimpleProperty(
+        description = "Update recycler view item count. This causes recycler view to recreate views."
+    )
     fun Count(count: Int) {
         this.count = count
     }
 
-    @SimpleProperty
+    @SimpleProperty(
+        description = "Get recycler view item count."
+    )
     fun Count() = count
 
     @SimpleProperty(
@@ -166,7 +183,8 @@ class RecyclerList(private val container: ComponentContainer) : AndroidNonvisibl
     fun FirstVisibleItem(): Int {
         return when (val manager = recyclerView?.layoutManager) {
             is GridLayoutManager -> manager.findFirstVisibleItemPosition().inc()
-            is StaggeredGridLayoutManager -> manager.findFirstVisibleItemPositions(intArrayOf()).first().inc()
+            is StaggeredGridLayoutManager -> manager.findFirstVisibleItemPositions(IntArray(manager.spanCount)).first()
+                .inc()
             is LinearLayoutManager -> manager.findFirstVisibleItemPosition().inc()
             else -> -1
         }
@@ -178,7 +196,8 @@ class RecyclerList(private val container: ComponentContainer) : AndroidNonvisibl
     fun FirstCompletelyVisibleItem(): Int {
         return when (val manager = recyclerView?.layoutManager) {
             is GridLayoutManager -> manager.findFirstCompletelyVisibleItemPosition().inc()
-            is StaggeredGridLayoutManager -> manager.findFirstCompletelyVisibleItemPositions(intArrayOf()).first().inc()
+            is StaggeredGridLayoutManager -> manager.findFirstCompletelyVisibleItemPositions(IntArray(manager.spanCount))
+                .first().inc()
             is LinearLayoutManager -> manager.findFirstCompletelyVisibleItemPosition().inc()
             else -> -1
         }
@@ -190,7 +209,8 @@ class RecyclerList(private val container: ComponentContainer) : AndroidNonvisibl
     fun LastVisibleItem(): Int {
         return when (val manager = recyclerView?.layoutManager) {
             is GridLayoutManager -> manager.findLastVisibleItemPosition().inc()
-            is StaggeredGridLayoutManager -> manager.findLastVisibleItemPositions(intArrayOf()).last().inc()
+            is StaggeredGridLayoutManager -> manager.findLastVisibleItemPositions(IntArray(manager.spanCount)).last()
+                .inc()
             is LinearLayoutManager -> manager.findLastVisibleItemPosition().inc()
             else -> -1
         }
@@ -202,7 +222,9 @@ class RecyclerList(private val container: ComponentContainer) : AndroidNonvisibl
     fun LastCompletelyVisibleItem(): Int {
         return when (val manager = recyclerView?.layoutManager) {
             is GridLayoutManager -> manager.findLastCompletelyVisibleItemPosition().inc()
-            is StaggeredGridLayoutManager -> manager.findLastCompletelyVisibleItemPositions(intArrayOf()).last().inc()
+            is StaggeredGridLayoutManager -> manager.findLastCompletelyVisibleItemPositions(IntArray(manager.spanCount))
+                .last()
+                .inc()
             is LinearLayoutManager -> manager.findLastCompletelyVisibleItemPosition().inc()
             else -> -1
         }
@@ -222,4 +244,13 @@ class RecyclerList(private val container: ComponentContainer) : AndroidNonvisibl
 
     @SimpleProperty
     fun Horizontal() = RecyclerView.HORIZONTAL
+
+    @SimpleProperty
+    fun LinearSnapHelper() = ListSnapHelper.Linear.name
+
+    @SimpleProperty
+    fun PagerSnapHelper() = ListSnapHelper.Pager.name
+
+    @SimpleProperty
+    fun NoSnapHelper() = ListSnapHelper.None.name
 }

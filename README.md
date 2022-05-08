@@ -1,3 +1,3 @@
 ## RecyclerList
 
-An App Inventor 2 extension created using Rush.
+An extension for rendering larger data sets efficiently using `RecyclerView` for AppInventor & Distros.
