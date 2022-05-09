@@ -32,7 +32,7 @@ class RecyclerList(private val container: ComponentContainer) : AndroidNonvisibl
     }
 
     private fun createAdapter(): RecyclerView.Adapter<ViewHolder> {
-        return AndroidViewAdapter(container, ::OnCreateView, ::OnBindView) { count }
+        return AndroidViewAdapter(container, ::OnCreateView, ::OnBindView, YailList.makeEmptyList())
     }
 
     @SimpleFunction(
@@ -146,8 +146,8 @@ class RecyclerList(private val container: ComponentContainer) : AndroidNonvisibl
     @SimpleEvent(
         description = "Event raised to bind data to UI."
     )
-    fun OnBindView(root: AndroidViewComponent, position: Int) {
-        EventDispatcher.dispatchEvent(this, "OnBindView", root, position)
+    fun OnBindView(root: AndroidViewComponent, position: Int, dataItem: Any?) {
+        EventDispatcher.dispatchEvent(this, "OnBindView", root, position, dataItem)
     }
 
     @SimpleProperty(
@@ -161,6 +161,20 @@ class RecyclerList(private val container: ComponentContainer) : AndroidNonvisibl
         description = "Get recycler view item count."
     )
     fun Count() = count
+
+    @SimpleProperty(
+        description = "Update recycler view data. This causes recycler view to recreate views."
+    )
+    fun Data(list: YailList) {
+        (recyclerView?.adapter as? AndroidViewAdapter)?.updateData(list)
+    }
+
+    @SimpleProperty(
+        description = "Get recycler view data."
+    )
+    fun Data(): YailList {
+        return (recyclerView?.adapter as? AndroidViewAdapter)?.getData() ?: YailList.makeEmptyList()
+    }
 
     @SimpleProperty(
         description = "Returns the adapter position of the first visible view."
