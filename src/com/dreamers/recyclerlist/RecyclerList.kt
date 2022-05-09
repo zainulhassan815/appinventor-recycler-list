@@ -31,23 +31,8 @@ class RecyclerList(private val container: ComponentContainer) : AndroidNonvisibl
         recyclerView?.adapter?.notifyDataSetChanged()
     }
 
-    private fun createAdapter(
-        container: ComponentContainer,
-        getCount: () -> Int
-    ): RecyclerView.Adapter<ViewHolder> {
-        return object : RecyclerView.Adapter<ViewHolder>() {
-            override fun onCreateViewHolder(viewGroup: ViewGroup, type: Int): ViewHolder {
-                val viewHolder = ViewHolder.create(container)
-                OnCreateView(viewHolder.component)
-                return viewHolder
-            }
-
-            override fun onBindViewHolder(viewHolder: ViewHolder, position: Int) {
-                OnBindView(viewHolder.component, position.inc())
-            }
-
-            override fun getItemCount(): Int = getCount()
-        }
+    private fun createAdapter(): RecyclerView.Adapter<ViewHolder> {
+        return AndroidViewAdapter(container, ::OnCreateView, ::OnBindView) { count }
     }
 
     @SimpleFunction(
@@ -68,7 +53,7 @@ class RecyclerList(private val container: ComponentContainer) : AndroidNonvisibl
                 reverse,
                 spanCount
             )
-            adapter = createAdapter(container) { count }
+            adapter = createAdapter()
             ListSnapHelper.valueOf(snapHelper).getSnapHelper()?.attachToRecyclerView(this)
         }
 
