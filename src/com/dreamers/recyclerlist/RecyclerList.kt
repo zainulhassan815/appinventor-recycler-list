@@ -28,7 +28,8 @@ class RecyclerList(private val container: ComponentContainer) : AndroidNonvisibl
 
     private var recyclerView: RecyclerView? = null
     private var count: Int by Delegates.observable(0) { _, _, _ ->
-        recyclerView?.adapter?.notifyDataSetChanged()
+        val dummyData = arrayOfNulls<Any?>(count)
+        (recyclerView?.adapter as? AndroidViewAdapter)?.updateData(YailList.makeList(dummyData))
     }
 
     private fun createAdapter(): RecyclerView.Adapter<ViewHolder> {
