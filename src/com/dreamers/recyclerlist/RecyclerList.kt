@@ -19,7 +19,6 @@ import com.google.appinventor.components.runtime.AndroidViewComponent
 import com.google.appinventor.components.runtime.ComponentContainer
 import com.google.appinventor.components.runtime.EventDispatcher
 import com.google.appinventor.components.runtime.util.YailList
-import kotlin.properties.Delegates
 
 @Suppress("FunctionName")
 class RecyclerList(private val container: ComponentContainer) : AndroidNonvisibleComponent(container.`$form`()) {
@@ -28,10 +27,6 @@ class RecyclerList(private val container: ComponentContainer) : AndroidNonvisibl
     private val dynamicComponents: DynamicComponents = DynamicComponents()
 
     private var recyclerView: RecyclerView? = null
-    private var count: Int by Delegates.observable(0) { _, _, _ ->
-        val dummyData = arrayOfNulls<Any?>(count)
-        (recyclerView?.adapter as? AndroidViewAdapter)?.updateData(YailList.makeList(dummyData))
-    }
 
     private fun createAdapter(): RecyclerView.Adapter<ViewHolder> {
         return AndroidViewAdapter(container, ::OnCreateView, ::OnBindView, YailList.makeEmptyList())
@@ -179,18 +174,6 @@ class RecyclerList(private val container: ComponentContainer) : AndroidNonvisibl
     fun OnBindView(root: AndroidViewComponent, position: Int, dataItem: Any?) {
         EventDispatcher.dispatchEvent(this, "OnBindView", root, position, dataItem)
     }
-
-    @SimpleProperty(
-        description = "Update recycler view item count. This causes recycler view to recreate views."
-    )
-    fun Count(count: Int) {
-        this.count = count
-    }
-
-    @SimpleProperty(
-        description = "Get recycler view item count."
-    )
-    fun Count() = count
 
     @SimpleProperty(
         description = "Update recycler view data. This causes recycler view to recreate views."
