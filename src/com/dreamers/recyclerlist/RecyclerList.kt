@@ -1,6 +1,7 @@
 package com.dreamers.recyclerlist
 
 import android.content.Context
+import android.util.TypedValue
 import android.view.ViewGroup
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -35,6 +36,11 @@ class RecyclerList(private val container: ComponentContainer) : AndroidNonvisibl
         return AndroidViewAdapter(container, ::OnCreateView, ::OnBindView) { count }
     }
 
+    private fun Int.px(): Int {
+        val metrics = context.resources.displayMetrics
+        return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, this.toFloat(), metrics).toInt()
+    }
+
     @SimpleFunction(
         description = "Initialize recycler view inside a layout."
     )
@@ -64,6 +70,29 @@ class RecyclerList(private val container: ComponentContainer) : AndroidNonvisibl
                 ViewGroup.LayoutParams.MATCH_PARENT
             )
         )
+    }
+
+    @SimpleFunction(
+        description = "Add consistent gap between list items."
+    )
+    fun AddGapDecorator(gap: Int) {
+        recyclerView?.apply {
+            val spanCount = when (val manager = layoutManager) {
+                is GridLayoutManager -> manager.spanCount
+                is StaggeredGridLayoutManager -> manager.spanCount
+                else -> 1
+            }
+
+            val orientation = when (val manager = layoutManager) {
+                is GridLayoutManager -> manager.orientation
+                is StaggeredGridLayoutManager -> manager.orientation
+                is LinearLayoutManager -> manager.orientation
+                else -> RecyclerView.VERTICAL
+            }
+
+            val decoration = MarginItemDecoration(orientation, spanCount, gap.px())
+            addItemDecoration(decoration)
+        }
     }
 
     @SimpleFunction(
