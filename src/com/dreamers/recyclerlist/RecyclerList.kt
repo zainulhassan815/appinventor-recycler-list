@@ -57,6 +57,18 @@ class RecyclerList(private val container: ComponentContainer) : AndroidNonvisibl
             )
             adapter = createAdapter()
             ListSnapHelper.valueOf(snapHelper).getSnapHelper()?.attachToRecyclerView(this)
+
+            addOnScrollListener(object : RecyclerView.OnScrollListener() {
+                override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
+                    super.onScrollStateChanged(recyclerView, newState)
+                    OnScrollStateChanged(newState)
+                }
+
+                override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                    super.onScrolled(recyclerView, dx, dy)
+                    OnScrolled(dx, dy)
+                }
+            })
         }
 
         (`in`.view as ViewGroup).addView(
@@ -175,6 +187,20 @@ class RecyclerList(private val container: ComponentContainer) : AndroidNonvisibl
         EventDispatcher.dispatchEvent(this, "OnBindView", root, position, dataItem)
     }
 
+    @SimpleEvent(
+        description = "Event raised when scroll state changes."
+    )
+    fun OnScrollStateChanged(scrollState: Int) {
+        EventDispatcher.dispatchEvent(this, "OnScrollStateChanged", scrollState)
+    }
+
+    @SimpleEvent(
+        description = "Event raised when scroll event occurs."
+    )
+    fun OnScrolled(dx: Int, dy: Int) {
+        EventDispatcher.dispatchEvent(this, "OnScrolled", dx, dy)
+    }
+
     @SimpleProperty(
         description = "Update recycler view data. This causes recycler view to recreate views."
     )
@@ -265,4 +291,13 @@ class RecyclerList(private val container: ComponentContainer) : AndroidNonvisibl
 
     @SimpleProperty
     fun NoSnapHelper() = ListSnapHelper.None.name
+
+    @SimpleProperty
+    fun ScrollStateIdle() = RecyclerView.SCROLL_STATE_IDLE
+
+    @SimpleProperty
+    fun ScrollStateDragging() = RecyclerView.SCROLL_STATE_DRAGGING
+
+    @SimpleProperty
+    fun ScrollStateSettling() = RecyclerView.SCROLL_STATE_SETTLING
 }

@@ -3,9 +3,6 @@
 -verbose
 # Preserve some attributes that may be required for reflection.
 -keepattributes *Annotation*,Signature,InnerClasses,EnclosingMethod
--keep public class com.google.vending.licensing.ILicensingService
--keep public class com.android.vending.licensing.ILicensingService
--keep public class com.google.android.vending.licensing.ILicensingService
 -dontnote com.android.vending.licensing.ILicensingService
 -dontnote com.google.vending.licensing.ILicensingService
 -dontnote com.google.android.vending.licensing.ILicensingService
@@ -44,24 +41,24 @@
 # This class is deprecated, but remains for backward compatibility.
 -dontwarn android.util.FloatMath
 # Understand the @Keep support annotation.
--keep class android.support.annotation.Keep
 -keep class androidx.annotation.Keep
--keep @android.support.annotation.Keep class * {*;}
+-keep class androidx.annotation.Keep
+-keep @androidx.annotation.Keep class * {*;}
 -keep @androidx.annotation.Keep class * {*;}
 -keepclasseswithmembers class * {
-    @android.support.annotation.Keep <methods>;
+    @androidx.annotation.Keep <methods>;
 }
 -keepclasseswithmembers class * {
     @androidx.annotation.Keep <methods>;
 }
 -keepclasseswithmembers class * {
-    @android.support.annotation.Keep <fields>;
+    @androidx.annotation.Keep <fields>;
 }
 -keepclasseswithmembers class * {
     @androidx.annotation.Keep <fields>;
 }
 -keepclasseswithmembers class * {
-    @android.support.annotation.Keep <init>(...);
+    @androidx.annotation.Keep <init>(...);
 }
 -keepclasseswithmembers class * {
     @androidx.annotation.Keep <init>(...);

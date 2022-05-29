@@ -40,7 +40,3 @@
     public void suppressLayout(boolean);
     public boolean isLayoutSuppressed();
 }
-
--dontwarn androidx.recyclerview.widget.GridLayoutManager
--dontwarn androidx.recyclerview.widget.RecyclerView$LayoutManager
--dontwarn androidx.recyclerview.widget.StaggeredGridLayoutManager
