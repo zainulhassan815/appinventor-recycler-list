@@ -38,3 +38,4 @@ assets:
 deps:
   - recyclerview-1.1.0.jar
   - core-1.3.2.jar
+  - recyclerview-animators-4.0.2.jar
