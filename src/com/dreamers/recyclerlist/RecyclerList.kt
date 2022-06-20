@@ -29,13 +29,24 @@ class RecyclerList(private val container: ComponentContainer) : AndroidNonvisibl
     private var recyclerView: RecyclerView? = null
 
     private fun createAdapter(): RecyclerView.Adapter<ViewHolder> {
-        return AndroidViewAdapter(container, ::OnCreateView, ::OnBindView, YailList.makeEmptyList())
+        return object : AndroidViewAdapter(container, ::OnCreateView, ::OnBindView) {
+            override fun onViewAttachedToWindow(holder: ViewHolder) {
+                super.onViewAttachedToWindow(holder)
+                OnAttachToWindow(holder.component)
+            }
+
+            override fun onViewDetachedFromWindow(holder: ViewHolder) {
+                super.onViewDetachedFromWindow(holder)
+                OnDetachFromWindow(holder.component)
+            }
+        }
     }
 
-    private fun Int.px(): Int {
-        val metrics = context.resources.displayMetrics
-        return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, this.toFloat(), metrics).toInt()
-    }
+    private val Int.px: Int
+        get() {
+            val metrics = context.resources.displayMetrics
+            return TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, toFloat(), metrics).toInt()
+        }
 
     @SimpleFunction(
         description = "Initialize recycler view inside a layout."
@@ -80,6 +91,46 @@ class RecyclerList(private val container: ComponentContainer) : AndroidNonvisibl
         )
     }
 
+    @SimpleFunction("Notify any registered observers that the data set has changed.")
+    fun NotifyDataSetChanged() {
+        recyclerView?.adapter?.notifyDataSetChanged()
+    }
+
+    @SimpleFunction("Notify any registered observers that the item at `position` has changed.")
+    fun NotifyItemChanged(position: Int) {
+        recyclerView?.adapter?.notifyItemChanged(position.dec())
+    }
+
+    @SimpleFunction("Notify any registered observers that the item reflected at `position` has been newly inserted.")
+    fun NotifyItemInserted(position: Int){
+        recyclerView?.adapter?.notifyItemInserted(position.dec())
+    }
+
+    @SimpleFunction("Notify any registered observers that the item previously located at 'position' has been removed from the data set.")
+    fun NotifyItemRemoved(position: Int) {
+        recyclerView?.adapter?.notifyItemRemoved(position.dec())
+    }
+
+    @SimpleFunction("Notify any registered observers that the item reflected at `from` has been moved to `to`.")
+    fun NotifyItemMoved(from: Int, to: Int) {
+        recyclerView?.adapter?.notifyItemMoved(from.dec(), to.dec())
+    }
+
+    @SimpleFunction("Notify any registered observers that the currently reflected `count` items starting at `startPosition` have been newly inserted.")
+    fun NotifyItemRangeChanged(startPosition: Int, count: Int) {
+        recyclerView?.adapter?.notifyItemRangeChanged(startPosition.dec(), count)
+    }
+
+    @SimpleFunction("Notify any registered observers that the currently reflected `count` items starting at `startPosition` have been newly inserted.")
+    fun NotifyItemRangeInserted(startPosition: Int, count: Int) {
+        recyclerView?.adapter?.notifyItemRangeInserted(startPosition.dec(), count)
+    }
+
+    @SimpleFunction("Notify any registered observers that the currently reflected `count` items starting at `startPosition` have been removed.")
+    fun NotifyItemRangeRemoved(startPosition: Int, count: Int) {
+        recyclerView?.adapter?.notifyItemRangeRemoved(startPosition.dec(), count)
+    }
+
     @SimpleFunction(
         description = "Add consistent gap between list items."
     )
@@ -98,7 +149,7 @@ class RecyclerList(private val container: ComponentContainer) : AndroidNonvisibl
                 else -> RecyclerView.VERTICAL
             }
 
-            val decoration = MarginItemDecoration(orientation, spanCount, gap.px())
+            val decoration = MarginItemDecoration(orientation, spanCount, gap.px)
             addItemDecoration(decoration)
         }
     }
@@ -152,6 +203,11 @@ class RecyclerList(private val container: ComponentContainer) : AndroidNonvisibl
         return if (viewHolder is ViewHolder) viewHolder.component else null
     }
 
+    @SimpleFunction("Returns the Adapter position of the item represented by `root`.")
+    fun GetPosition(root: AndroidViewComponent): Int {
+        return recyclerView?.findContainingViewHolder(root.view)?.adapterPosition?.inc() ?: 0
+    }
+
     @SimpleFunction(
         description = "Returns true if the given component is dynamic."
     )
@@ -199,6 +255,20 @@ class RecyclerList(private val container: ComponentContainer) : AndroidNonvisibl
     )
     fun OnScrolled(dx: Int, dy: Int) {
         EventDispatcher.dispatchEvent(this, "OnScrolled", dx, dy)
+    }
+
+    @SimpleEvent(
+        description = "Called when a view created by adapter has been attached to a window."
+    )
+    fun OnAttachToWindow(root: AndroidViewComponent) {
+        EventDispatcher.dispatchEvent(this, "OnAttachToWindow", root)
+    }
+
+    @SimpleEvent(
+        description = "Called when a view created by adapter has been detached from its window."
+    )
+    fun OnDetachFromWindow(root: AndroidViewComponent) {
+        EventDispatcher.dispatchEvent(this, "OnDetachFromWindow", root)
     }
 
     @SimpleProperty(

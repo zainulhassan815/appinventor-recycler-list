@@ -3,14 +3,14 @@
 
 ---
 name: RecyclerList
-description: An extension for rendering larger data sets efficiently using <a href="https://developer.android.com/guide/topics/ui/layout/recyclerview">RecyclerView</a> for AppInventor & Distros.
+description: An extension for rendering larger data sets efficiently using <a target="_blank" href="https://developer.android.com/guide/topics/ui/layout/recyclerview">RecyclerView</a> for AppInventor & Distros.
 homepage: https://github.com/zainulhassan815/appinventor-recycler-list
 license: https://github.com/zainulhassan815/appinventor-recycler-list/blob/main/LICENSE
 min_sdk: 21
 
 version:
   number: auto
-  name: '1.0.1'
+  name: '1.0.3'
 
 authors:
   - Zain Ul Hassan
