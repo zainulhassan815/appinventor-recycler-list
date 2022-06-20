@@ -10,13 +10,12 @@ open class AndroidViewAdapter(
     private val container: ComponentContainer,
     private val onCreateView: (root: AndroidViewComponent) -> Unit,
     private val onBindView: (root: AndroidViewComponent, position: Int, dataItem: Any?) -> Unit,
-    private var data: YailList,
+    private var data: YailList = YailList.makeEmptyList(),
 ) : RecyclerView.Adapter<ViewHolder>() {
 
     fun updateData(data: YailList) {
         if (this.data != data) {
             this.data = data
-            notifyDataSetChanged()
         }
     }
 
