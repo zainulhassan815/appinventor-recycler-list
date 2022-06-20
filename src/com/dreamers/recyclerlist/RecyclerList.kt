@@ -7,13 +7,12 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import androidx.recyclerview.widget.StaggeredGridLayoutManager
-import com.dreamers.recyclerlist.utils.DynamicComponents
-import com.dreamers.recyclerlist.utils.findViewByTag
-import com.dreamers.recyclerlist.utils.getLayoutManager
-import com.dreamers.recyclerlist.utils.getSnapHelper
+import com.dreamers.recyclerlist.utils.*
+import com.google.appinventor.components.annotations.DesignerProperty
 import com.google.appinventor.components.annotations.SimpleEvent
 import com.google.appinventor.components.annotations.SimpleFunction
 import com.google.appinventor.components.annotations.SimpleProperty
+import com.google.appinventor.components.common.PropertyTypeConstants
 import com.google.appinventor.components.runtime.AndroidNonvisibleComponent
 import com.google.appinventor.components.runtime.AndroidViewComponent
 import com.google.appinventor.components.runtime.ComponentContainer
@@ -27,6 +26,8 @@ class RecyclerList(private val container: ComponentContainer) : AndroidNonvisibl
     private val dynamicComponents: DynamicComponents = DynamicComponents()
 
     private var recyclerView: RecyclerView? = null
+
+    private var animator: ItemAnimator = ItemAnimator.Default
 
     private fun createAdapter(): RecyclerView.Adapter<ViewHolder> {
         return object : AndroidViewAdapter(container, ::OnCreateView, ::OnBindView) {
@@ -68,6 +69,7 @@ class RecyclerList(private val container: ComponentContainer) : AndroidNonvisibl
             )
             adapter = createAdapter()
             ListSnapHelper.valueOf(snapHelper).getSnapHelper()?.attachToRecyclerView(this)
+            itemAnimator = animator.getAnimator()
 
             addOnScrollListener(object : RecyclerView.OnScrollListener() {
                 override fun onScrollStateChanged(recyclerView: RecyclerView, newState: Int) {
@@ -102,7 +104,7 @@ class RecyclerList(private val container: ComponentContainer) : AndroidNonvisibl
     }
 
     @SimpleFunction("Notify any registered observers that the item reflected at `position` has been newly inserted.")
-    fun NotifyItemInserted(position: Int){
+    fun NotifyItemInserted(position: Int) {
         recyclerView?.adapter?.notifyItemInserted(position.dec())
     }
 
@@ -337,6 +339,95 @@ class RecyclerList(private val container: ComponentContainer) : AndroidNonvisibl
             else -> -1
         }
     }
+
+    @DesignerProperty(
+        editorType = PropertyTypeConstants.PROPERTY_TYPE_CHOICES,
+        defaultValue = "Default",
+        editorArgs = [
+            "Default",
+            "LandingAnimator",
+            "ScaleInAnimator", "ScaleInTopAnimator", "ScaleInBottomAnimator", "ScaleInLeftAnimator", "ScaleInRightAnimator",
+            "FadeInAnimator", "FadeInDownAnimator", "FadeInUpAnimator", "FadeInLeftAnimator", "FadeInRightAnimator",
+            "FlipInTopXAnimator", "FlipInBottomXAnimator", "FlipInLeftYAnimator", "FlipInRightYAnimator",
+            "SlideInLeftAnimator", "SlideInRightAnimator", "OvershootInLeftAnimator", "OvershootInRightAnimator",
+            "SlideInUpAnimator", "SlideInDownAnimator"
+        ]
+    )
+    @SimpleProperty("Set `Animations` that take place on items as changes are made to the adapter.")
+    fun ItemAnimator(animator: String) {
+        this.animator = ItemAnimator.valueOf(animator)
+        recyclerView?.itemAnimator = this.animator.getAnimator()
+    }
+
+    @SimpleProperty
+    fun ItemAnimator() = animator.name
+
+    @SimpleProperty
+    fun DefaultAnimator() = ItemAnimator.Default.name
+
+    @SimpleProperty
+    fun LandingAnimator() = ItemAnimator.LandingAnimator.name
+
+    @SimpleProperty
+    fun FadeInAnimator() = ItemAnimator.FadeInAnimator.name
+
+    @SimpleProperty
+    fun FadeInDownAnimator() = ItemAnimator.FadeInDownAnimator.name
+
+    @SimpleProperty
+    fun FadeInUpAnimator() = ItemAnimator.FadeInUpAnimator.name
+
+    @SimpleProperty
+    fun FadeInLeftAnimator() = ItemAnimator.FadeInLeftAnimator.name
+
+    @SimpleProperty
+    fun FadeInRightAnimator() = ItemAnimator.FadeInRightAnimator.name
+
+    @SimpleProperty
+    fun ScaleInAnimator() = ItemAnimator.ScaleInAnimator.name
+
+    @SimpleProperty
+    fun ScaleInTopAnimator() = ItemAnimator.ScaleInTopAnimator.name
+
+    @SimpleProperty
+    fun ScaleInBottomAnimator() = ItemAnimator.ScaleInBottomAnimator.name
+
+    @SimpleProperty
+    fun ScaleInLeftAnimator() = ItemAnimator.ScaleInLeftAnimator.name
+
+    @SimpleProperty
+    fun ScaleInRightAnimator() = ItemAnimator.ScaleInRightAnimator.name
+
+    @SimpleProperty
+    fun FlipInTopXAnimator() = ItemAnimator.FlipInTopXAnimator.name
+
+    @SimpleProperty
+    fun FlipInBottomXAnimator() = ItemAnimator.FlipInBottomXAnimator.name
+
+    @SimpleProperty
+    fun FlipInLeftYAnimator() = ItemAnimator.FlipInLeftYAnimator.name
+
+    @SimpleProperty
+    fun FlipInRightYAnimator() = ItemAnimator.FlipInRightYAnimator.name
+
+    @SimpleProperty
+    fun SlideInLeftAnimator() = ItemAnimator.SlideInLeftAnimator.name
+
+    @SimpleProperty
+    fun SlideInRightAnimator() = ItemAnimator.SlideInRightAnimator.name
+
+    @SimpleProperty
+    fun OvershootInLeftAnimator() = ItemAnimator.OvershootInLeftAnimator.name
+
+    @SimpleProperty
+    fun OvershootInRightAnimator() = ItemAnimator.OvershootInRightAnimator.name
+
+    @SimpleProperty
+    fun SlideInUpAnimator() = ItemAnimator.SlideInUpAnimator.name
+
+    @SimpleProperty
+    fun SlideInDownAnimator() = ItemAnimator.SlideInDownAnimator.name
+
 
     @SimpleProperty
     fun LinearLayoutManager() = ListManager.Linear.name
